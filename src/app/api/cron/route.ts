@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     const overdueResult = await prisma.followUp.updateMany({
       where: {
         status: "PENDING",
-        dueDate: { lt: new Date() },
+        scheduledAt: { lt: new Date() },
       },
       data: {
         status: "OVERDUE",
