@@ -1,14 +1,8 @@
 const { createServer } = require("http");
 const { parse } = require("url");
+const path = require("path");
+const { spawn } = require("child_process");
 const next = require("next");
-
-// Auto-boot WhatsApp Baileys Gateway in unified single-domain production process
-try {
-  console.log("⚡ [Single-Domain Supervisor] Launching internal WhatsApp Baileys Gateway daemon...");
-  require("./whatsapp-server.js");
-} catch (gwErr) {
-  console.error("⚠️ [Single-Domain Supervisor] Failed to boot internal WhatsApp Gateway:", gwErr.message);
-}
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.HOSTNAME || "0.0.0.0";
@@ -19,7 +13,7 @@ const app = next({ dev, hostname, port: typeof port === "number" ? port : 3000 }
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  createServer(async (req, res) => {
+  const server = createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true);
       await handle(req, res, parsedUrl);
@@ -28,7 +22,23 @@ app.prepare().then(() => {
       res.statusCode = 500;
       res.end("Internal Server Error");
     }
-  }).listen(port, () => {
+  });
+
+  server.listen(port, () => {
     console.log(`> Closify CRM ready on ${typeof port === "number" ? `http://${hostname}:${port}` : `socket ${port}`}`);
+
+    // Auto-boot WhatsApp Baileys Gateway in background daemon process (isolated from Passenger HTTP listener)
+    try {
+      console.log("⚡ [Single-Domain Supervisor] Spawning internal WhatsApp Baileys Gateway daemon...");
+      const gw = spawn(process.execPath, [path.join(__dirname, "whatsapp-server.js")], {
+        stdio: "inherit",
+        env: { ...process.env, PORT: "3001" },
+      });
+      gw.on("error", (gwErr) => {
+        console.error("⚠️ [Single-Domain Supervisor] WhatsApp Gateway error:", gwErr.message);
+      });
+    } catch (spawnErr) {
+      console.error("⚠️ [Single-Domain Supervisor] Failed to spawn WhatsApp Gateway:", spawnErr.message);
+    }
   });
 });
