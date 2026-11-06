@@ -93,7 +93,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Query user by email OR username (case-insensitive for email)
+    // 2. Auto-initialize Super Admin if database has zero users
+    const userCount = await prisma.user.count().catch(() => 0);
+    if (userCount === 0 && identifier.toLowerCase() === "admin@aceone.com") {
+      const defaultPasswordHash = await bcrypt.hash("Password@123", 12);
+      await prisma.user.create({
+        data: {
+          name: "AceOne Super Admin",
+          email: "admin@aceone.com",
+          username: "superadmin",
+          passwordHash: defaultPasswordHash,
+          role: UserRole.SUPER_ADMIN,
+          isActive: true,
+        },
+      });
+      logger.info("Auto-initialized initial Super Admin user: admin@aceone.com");
+    }
+
+    // Query user by email OR username (case-insensitive for email)
     const user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -180,10 +197,10 @@ export async function POST(req: NextRequest) {
       },
       redirectUrl,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login security error:", error);
     return NextResponse.json(
-      { error: "An unexpected authentication error occurred" },
+      { error: error?.message || "An unexpected authentication error occurred" },
       { status: 500 }
     );
   }
