@@ -21,6 +21,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var import_config = require("dotenv/config");
 var import_client = require("@prisma/client");
 var import_bcryptjs = __toESM(require("bcryptjs"));
 const prisma = new import_client.PrismaClient();
