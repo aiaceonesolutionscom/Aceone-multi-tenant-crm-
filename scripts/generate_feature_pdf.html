@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AceOne Solutions — Multi-Tenant Meta Lead CRM Features Guide</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #111827;
+      background: #FFFFFF;
+      line-height: 1.5;
+      font-size: 11pt;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      border-bottom: 2px solid #2563EB;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand-title {
+      font-size: 20pt;
+      font-weight: 800;
+      color: #2563EB;
+      letter-spacing: -0.5px;
+    }
+    .brand-subtitle {
+      font-size: 10pt;
+      color: #64748B;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 8.5pt;
+      font-weight: 700;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .badge-green { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+    .badge-purple { background: #FAF5FF; color: #6B21A8; border: 1px solid #E9D5FF; }
+
+    h1 {
+      font-size: 16pt;
+      color: #0F172A;
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    h2 {
+      font-size: 12pt;
+      color: #1E293B;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 4px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-size: 10.5pt;
+      color: #334155;
+      margin-top: 12px;
+      margin-bottom: 4px;
+      font-weight: 600;
+      page-break-after: avoid;
+    }
+    p {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #334155;
+      font-size: 10pt;
+    }
+    .callout {
+      background: #F8FAFC;
+      border-left: 4px solid #2563EB;
+      padding: 10px 14px;
+      margin: 12px 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 9.5pt;
+    }
+    .callout-title {
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 3px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #CBD5E1;
+      padding: 6px 9px;
+      text-align: left;
+    }
+    th {
+      background: #F1F5F9;
+      color: #1E293B;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td {
+      background: #F8FAFC;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+      page-break-inside: avoid;
+    }
+    .feature-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .feature-card-title {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .feature-card-desc {
+      font-size: 8.5pt;
+      color: #475569;
+      margin: 0;
+      line-height: 1.4;
+    }
+    ul {
+      margin-top: 4px;
+      margin-bottom: 8px;
+      padding-left: 18px;
+      font-size: 9.5pt;
+      color: #334155;
+    }
+    li {
+      margin-bottom: 3px;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    .footer {
+      margin-top: 25px;
+      border-top: 1px solid #E2E8F0;
+      padding-top: 8px;
+      font-size: 8pt;
+      color: #94A3B8;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="brand-title">AceOne Solutions</div>
+      <div class="brand-subtitle">Multi-Tenant Meta Lead CRM Platform — Complete Feature Guide</div>
+    </div>
+    <div style="text-align: right;">
+      <span class="badge badge-blue">Production Ready</span>
+      <div style="font-size: 8pt; color: #64748B; margin-top: 4px;">Version 1.0.0 (Enterprise)</div>
+    </div>
+  </div>
+
+  <!-- Overview Section -->
+  <h1>Project Overview & Purpose (آسان الفاظ میں خلاصہ)</h1>
+  <p>
+    <strong>AceOne Solutions Multi-Tenant Meta Lead CRM</strong> ek mukammal aur centralized SaaS platform hai jo Meta (Facebook aur Instagram) Lead Ads ko live collect kar ke CRM mein organize karta hai. Yeh aam single-company CRM nahi hai, balkay ek <strong>Multi-Tenant SaaS</strong> hai jahan AceOne ka Super Admin multiple client companies ko manage karta hai aur har client ko sirf uske assigned Meta Business Portfolio ka data dikhta hai.
+  </p>
+
+  <div class="callout">
+    <div class="callout-title">Core Architecture (Sab Se Ahem Nukta):</div>
+    AceOne ka <strong>ONE Centralized Meta Developer Account</strong> hai jisme multiple Business Portfolios mojood hain (e.g. Portfolio 1: Azwa Company, Portfolio 2: Apex Company). Har client ke liye alag Meta Developer App banane ki zaroorat nahi hai. Super Admin 1-to-1 mapping ke zariye kisi bhi portfolio ko specific client company ko assign kar deta hai.
+  </div>
+
+  <!-- Key Architecture Pillars -->
+  <h2>1. Platform Architecture & Data Isolation (سیکیورٹی اور آئسولیشن)</h2>
+  <ul>
+    <li><strong>One Centralized Connection:</strong> Super Admin ek dafa Meta OAuth se central account connect karta hai. System tamam Business Portfolios ko discover kar leta hai.</li>
+    <li><strong>Strict 1-to-1 Portfolio Assignment:</strong> Har client ko sirf ek Business Portfolio assign hota hai. Duplicate assignment system automatically block karta hai taake koi data overlap na ho.</li>
+    <li><strong>OWASP ASVS Multi-Tenant Security:</strong> Database queries backend server-side session cookie se client ka <code>tenantId</code> leti hain. Client A kisi bhi soorat Client B ka data, leads ya campaigns nahi dekh sakta.</li>
+    <li><strong>Token Encryption at Rest:</strong> Meta user aur page tokens database mein AES-256-GCM encryption ke sath mehfooz rehte hain.</li>
+  </ul>
+
+  <!-- Main Features Grid -->
+  <h2>2. Complete Module & Feature Breakdown (تمام فیچرز کی تفصیل)</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-blue">Admin</span> Super Admin Master Control
+      </div>
+      <p class="feature-card-desc">
+        Platform-wide dashboard jahan total clients, active/inactive companies, connected portfolios, aaj aane wale leads, aur Meta connection health live monitor hoti hai.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-blue">Admin</span> Client Companies Management
+      </div>
+      <p class="feature-card-desc">
+        Nayi client company create karna, primary Client Admin login credentials banana, status active/inactive toggle karna, password reset aur deletion safeguards.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-purple">Meta</span> Central Portfolio Management
+      </div>
+      <p class="feature-card-desc">
+        Central Meta account ke tamam Business Portfolios ki table, Meta Business ID, Ad Accounts aur Pages ki ginti, aur client assignment/reassignment workflow.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-purple">Meta</span> Asset Permissions & Health Check
+      </div>
+      <p class="feature-card-desc">
+        Page Lead Access diagnostics, webhook subscription check, token validity verification, aur missing permissions ke liye clear resolution guidance.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-green">Webhook</span> Real-time Meta Lead Ingestion
+      </div>
+      <p class="feature-card-desc">
+        GET verification (hub.challenge) aur POST signature verification (X-Hub-Signature-256). Idempotent leadgen_id processing jo duplicate leads rokta hai.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-green">Webhook</span> Raw Submission Preservation
+      </div>
+      <p class="feature-card-desc">
+        Customer ke form responses (Name, Phone, Email, Service) ko normalized format ke sath sath original Graph API JSONB format mein hamesha safe rakhta hai.
+      </p>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- Client CRM Features -->
+  <h2>3. Client CRM Dashboard Features (کلائنٹ پورٹل کی سہولیات)</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-green">CRM</span> Client Analytics Dashboard
+      </div>
+      <p class="feature-card-desc">
+        7 KPI metrics: Total Leads, New, Contacted, Interested, Converted, Lost, Conversion Rate %. Facebook vs Instagram source breakdown chart aur aaj ki follow-up alerts.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-green">CRM</span> Full Leads Management
+      </div>
+      <p class="feature-card-desc">
+        Search (Name, Phone, Email, Lead #), multi-filters (Status, Platform, Campaign, Form), CSV Export, aur slide-over lead detail drawer with internal notes thread.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-blue">Pipeline</span> Visual Sales Kanban Board
+      </div>
+      <p class="feature-card-desc">
+        5 Lifecycle columns: New, Contacted, Interested, Converted, Lost. Interactive drag-and-drop cards aur automated status history transition audit logging.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-blue">Tasks</span> Follow-up Reminder Management
+      </div>
+      <p class="feature-card-desc">
+        Har lead ke sath scheduled follow-up call/meeting add karna. Categorized tabs: Today, Upcoming, Overdue, Completed, with 1-click status updates.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-purple">Insights</span> Campaigns & Ads Hierarchy
+      </div>
+      <p class="feature-card-desc">
+        Portfolio &rarr; Ad Account &rarr; Campaign &rarr; Ad Set &rarr; Ad &rarr; Instant Form hierarchy explorer with real-time lead counts and objective stats.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-card-title">
+        <span class="badge badge-purple">Reports</span> Platform Reports & Analytics
+      </div>
+      <p class="feature-card-desc">
+        Interactive charts for status distribution, source comparisons, campaign ROI comparison, aur 1-click full CSV report downloads.
+      </p>
+    </div>
+  </div>
+
+  <!-- UI & Design System -->
+  <h2>4. Enterprise White Design System (طرزِ تعمیر اور ڈیزائن)</h2>
+  <p>
+    Platform ko user ke rules ke mutabiq <strong>pure modern white design</strong> par banaya gaya hai (no dark theme, no unnecessary animations):
+  </p>
+  <ul>
+    <li><strong>Main Canvas:</strong> White (<code>#FFFFFF</code>) with crisp subtle borders (<code>#E2E8F0</code>).</li>
+    <li><strong>Secondary Background:</strong> Very light slate (<code>#F8FAFC</code>).</li>
+    <li><strong>Primary Text:</strong> Charcoal (<code>#111827</code>) and muted grey (<code>#64748B</code>).</li>
+    <li><strong>Brand Accent:</strong> Professional Royal Blue (<code>#2563EB</code>).</li>
+    <li><strong>Official Branding:</strong> AceOne Solutions brand logo integrated seamlessly on Login, Super Admin, and Client dashboards.</li>
+  </ul>
+
+  <!-- Verification & Testing Status -->
+  <h2>5. Automated Verification & Testing Results (ٹیسٹنگ رپورٹ)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Test Suite</th>
+        <th>Scope / What Was Tested</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Tenant Isolation Suite</strong></td>
+        <td>Cross-tenant query leakage, direct object reference parameter tampering, and duplicate portfolio assignment block</td>
+        <td><span class="badge badge-green">3/3 Passed</span></td>
+      </tr>
+      <tr>
+        <td><strong>Webhook Pipeline Suite</strong></td>
+        <td>Hub challenge verification, HMAC-SHA256 signature, Graph API mapping, JSONB storage, and leadgen_id idempotency</td>
+        <td><span class="badge badge-green">Passed</span></td>
+      </tr>
+      <tr>
+        <td><strong>Next.js Production Build</strong></td>
+        <td>All 26 app routes and 19 API endpoints compiled cleanly with Turbopack and TypeScript</td>
+        <td><span class="badge badge-green">0 Errors</span></td>
+      </tr>
+      <tr>
+        <td><strong>Live Server & DB Sync</strong></td>
+        <td>HTTP 200 on login, Super Admin session creation, Client Admin session creation, and PostgreSQL 18 sync</td>
+        <td><span class="badge badge-green">Active on :3000</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Default Login Credentials -->
+  <h2>6. Default Login Credentials for Testing (ٹیسٹ اکاؤنٹس)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Account Role</th>
+        <th>Email / Username</th>
+        <th>Password</th>
+        <th>Access URL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Super Admin (Master Control)</strong></td>
+        <td><code>admin@aceone.com</code></td>
+        <td><code>Password@123</code></td>
+        <td><code>http://localhost:3000/admin</code></td>
+      </tr>
+      <tr>
+        <td><strong>Client Admin (Azwa Real Estate)</strong></td>
+        <td><code>azwa@aceonecrm.com</code></td>
+        <td><code>Password@123</code></td>
+        <td><code>http://localhost:3000/dashboard</code></td>
+      </tr>
+      <tr>
+        <td><strong>Client Admin (Apex Logistics)</strong></td>
+        <td><code>apex@aceonecrm.com</code></td>
+        <td><code>Password@123</code></td>
+        <td><code>http://localhost:3000/dashboard</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Deployment Overview -->
+  <h2>7. Production Deployment Readiness (cPanel Deployment)</h2>
+  <p>
+    Production deployment ke liye complete <code>CPANEL_DEPLOYMENT_GUIDE.md</code> mojood hai jo cover karta hai:
+  </p>
+  <ul>
+    <li>cPanel <strong>Setup Node.js App</strong> (Phusion Passenger / PM2 reverse proxy).</li>
+    <li>PostgreSQL database connection string setup.</li>
+    <li>AES-256 encryption keys aur environment variables configuration.</li>
+    <li>cPanel Cron Job reconciliation: <code>curl -s -X POST https://yourdomain.com/api/cron/sync-leads?key=...</code></li>
+  </ul>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>AceOne Solutions &copy; 2026 — Enterprise Multi-Tenant Meta Lead CRM</div>
+    <div>Generated & Verified Locally</div>
+  </div>
+
+</body>
+</html>

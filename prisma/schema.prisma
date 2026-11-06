@@ -1,0 +1,456 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  CLIENT_ADMIN
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  INTERESTED
+  CONVERTED
+  LOST
+}
+
+enum FollowUpStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum MetaSyncStatus {
+  CONNECTED
+  VERIFIED
+  MISSING_PERMISSION
+  EXPIRED
+  ERROR
+}
+
+enum IngestionType {
+  GOOGLE_FORM
+  GOOGLE_SHEET
+  WHATSAPP
+  CUSTOM_WEBHOOK
+  META_LEAD_ADS
+}
+
+// --------------------------------------------------------
+// TENANTS & PLATFORM USERS
+// --------------------------------------------------------
+model Tenant {
+  id              String         @id @default(uuid())
+  name            String         // Company Name (e.g. AceOne Agency or Client Company)
+  companyEmail    String         @unique
+  contactPerson   String
+  phone           String?
+  status          TenantStatus   @default(ACTIVE)
+  timezone        String         @default("Asia/Karachi")
+  dateFormat      String         @default("YYYY-MM-DD")
+  isInternal      Boolean        @default(false) // True for AceOne's own agency workspace
+  enabledChannels String[]       @default(["WHATSAPP", "GOOGLE_SHEETS"]) // Active modules for this client
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  users               User[]
+  portfolioAssignment PortfolioAssignment?
+  ingestionSources    IngestionSource[]
+  leads               Lead[]
+  followUps           FollowUp[]
+  auditLogs           AuditLog[]
+
+  @@index([status])
+  @@index([isInternal])
+}
+
+model User {
+  id              String         @id @default(uuid())
+  tenantId        String?        // Null for platform admin, or assigned to tenant
+  role            UserRole       @default(CLIENT_ADMIN)
+  email           String         @unique
+  username        String         @unique
+  passwordHash    String
+  name            String
+  isActive        Boolean        @default(true)
+  lastLoginAt     DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  tenant          Tenant?        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessions        Session[]
+  leadNotes       LeadNote[]
+  statusHistories LeadStatusHistory[]
+
+  @@index([tenantId, role])
+  @@index([email])
+}
+
+model Session {
+  id              String         @id @default(uuid())
+  userId          String
+  token           String         @unique
+  expiresAt       DateTime
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime       @default(now())
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+// --------------------------------------------------------
+// DYNAMIC INGESTION SOURCES (GOOGLE FORMS, SHEETS & WHATSAPP)
+// --------------------------------------------------------
+model IngestionSource {
+  id              String         @id @default(uuid())
+  tenantId        String
+  name            String         // e.g. "Properties Google Form", "AceOne Hotline WhatsApp"
+  type            IngestionType  @default(GOOGLE_FORM)
+  secretKey       String         @unique @default(uuid()) // Ingestion key for webhook
+  sheetUrl        String?
+  detectedHeaders String[]       @default([]) // Discovered column names
+  fieldMapping    Json?          // Optional manual field overrides
+  isActive        Boolean        @default(true)
+  lastReceivedAt  DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  tenant          Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leads           Lead[]
+
+  @@index([tenantId, type])
+  @@index([secretKey])
+}
+
+// --------------------------------------------------------
+// CENTRAL META INTEGRATION (PORTFOLIOS & AD HIERARCHY)
+// --------------------------------------------------------
+model MetaConnection {
+  id              String         @id @default(uuid())
+  appId           String
+  metaUserId      String         // Central Meta user ID
+  metaUserName    String?
+  accessTokenEnc  String         // AES-256-GCM encrypted long-lived user token
+  tokenExpiresAt  DateTime?
+  scopes          String[]       // Granted permissions
+  status          MetaSyncStatus @default(CONNECTED)
+  lastVerifiedAt  DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  portfolios      BusinessPortfolio[]
+}
+
+model BusinessPortfolio {
+  id               String         @id @default(uuid())
+  metaConnectionId String
+  metaBusinessId   String         @unique // Meta Business Portfolio ID
+  name             String
+  status           MetaSyncStatus @default(CONNECTED)
+  lastSyncedAt     DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  metaConnection   MetaConnection @relation(fields: [metaConnectionId], references: [id], onDelete: Cascade)
+  assignment       PortfolioAssignment?
+  adAccounts       AdAccount[]
+  pages            FacebookPage[]
+
+  @@index([metaBusinessId])
+}
+
+model PortfolioAssignment {
+  id                  String             @id @default(uuid())
+  tenantId            String             @unique // Strict 1-to-1 mapping
+  businessPortfolioId String             @unique
+  assignedAt          DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  businessPortfolio   BusinessPortfolio  @relation(fields: [businessPortfolioId], references: [id], onDelete: Cascade)
+}
+
+model AdAccount {
+  id                  String             @id @default(uuid())
+  businessPortfolioId String
+  metaAccountId       String             @unique // act_<id>
+  name                String
+  currency            String?
+  accountStatus       Int?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  businessPortfolio   BusinessPortfolio  @relation(fields: [businessPortfolioId], references: [id], onDelete: Cascade)
+  campaigns           Campaign[]
+  leads               Lead[]
+
+  @@index([businessPortfolioId])
+  @@index([metaAccountId])
+}
+
+model FacebookPage {
+  id                  String             @id @default(uuid())
+  businessPortfolioId String
+  metaPageId          String             @unique
+  name                String
+  pageAccessTokenEnc  String?
+  leadAccessStatus    String             @default("UNKNOWN")
+  subscribedToWebhook Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  businessPortfolio   BusinessPortfolio  @relation(fields: [businessPortfolioId], references: [id], onDelete: Cascade)
+  forms               MetaForm[]
+  leads               Lead[]
+
+  @@index([businessPortfolioId])
+  @@index([metaPageId])
+}
+
+model MetaForm {
+  id                  String             @id @default(uuid())
+  facebookPageId      String
+  metaFormId          String             @unique
+  name                String
+  status              String?
+  questionsJson       Json?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  facebookPage        FacebookPage       @relation(fields: [facebookPageId], references: [id], onDelete: Cascade)
+  leads               Lead[]
+
+  @@index([metaFormId])
+  @@index([facebookPageId])
+}
+
+model Campaign {
+  id                  String             @id @default(uuid())
+  adAccountId         String
+  metaCampaignId      String             @unique
+  name                String
+  status              String?
+  objective           String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  adAccount           AdAccount          @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
+  adSets              AdSet[]
+  leads               Lead[]
+
+  @@index([metaCampaignId])
+  @@index([adAccountId])
+}
+
+model AdSet {
+  id                  String             @id @default(uuid())
+  campaignId          String
+  metaAdSetId         String             @unique
+  name                String
+  status              String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  campaign            Campaign           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  ads                 Ad[]
+  leads               Lead[]
+
+  @@index([metaAdSetId])
+  @@index([campaignId])
+}
+
+model Ad {
+  id                  String             @id @default(uuid())
+  adSetId             String
+  metaAdId            String             @unique
+  name                String
+  status              String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  adSet               AdSet              @relation(fields: [adSetId], references: [id], onDelete: Cascade)
+  leads               Lead[]
+
+  @@index([metaAdId])
+  @@index([adSetId])
+}
+
+// --------------------------------------------------------
+// CRM LEADS & OMNICHANNEL ENGAGEMENT
+// --------------------------------------------------------
+model Lead {
+  id                  String             @id @default(uuid())
+  leadNumber          Int                @default(autoincrement())
+  tenantId            String
+  leadgenId           String?            @unique // Optional Meta ID
+  sourceType          IngestionType      @default(GOOGLE_FORM)
+  ingestionSourceId   String?
+  
+  // Normalized Customer Info
+  fullName            String
+  phone               String?
+  email               String?
+  companyName         String?
+  interestedService   String?
+  city                String?
+  notesSummary        String?
+  
+  // Dynamic custom fields from any Google Sheet / Form column
+  customFields        Json?
+
+  // Platform attribution
+  platform            String             @default("google_forms") // google_forms | google_sheets | whatsapp | facebook | instagram
+  status              LeadStatus         @default(NEW)
+  
+  // Optional Ad hierarchy attribution
+  adAccountId         String?
+  facebookPageId      String?
+  campaignId          String?
+  adSetId             String?
+  adId                String?
+  metaFormId          String?
+
+  submittedAt         DateTime           @default(now())
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ingestionSource     IngestionSource?   @relation(fields: [ingestionSourceId], references: [id], onDelete: SetNull)
+  adAccount           AdAccount?         @relation(fields: [adAccountId], references: [id], onDelete: SetNull)
+  facebookPage        FacebookPage?      @relation(fields: [facebookPageId], references: [id], onDelete: SetNull)
+  campaign            Campaign?          @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  adSet               AdSet?             @relation(fields: [adSetId], references: [id], onDelete: SetNull)
+  ad                  Ad?                @relation(fields: [adId], references: [id], onDelete: SetNull)
+  metaForm            MetaForm?          @relation(fields: [metaFormId], references: [id], onDelete: SetNull)
+
+  metaSubmission      MetaSubmission?
+  notes               LeadNote[]
+  statusHistories     LeadStatusHistory[]
+  followUps           FollowUp[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, submittedAt])
+  @@index([ingestionSourceId])
+  @@index([phone])
+  @@index([email])
+}
+
+model MetaSubmission {
+  id                  String             @id @default(uuid())
+  leadId              String             @unique
+  rawPayload          Json               // Full unaltered incoming payload (Form/Sheet/WhatsApp/Graph API)
+  formAnswers         Json               // Parsed key-value field responses
+  createdAt           DateTime           @default(now())
+
+  lead                Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model LeadNote {
+  id                  String             @id @default(uuid())
+  leadId              String
+  userId              String?
+  content             String
+  createdAt           DateTime           @default(now())
+
+  lead                Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user                User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+}
+
+model LeadStatusHistory {
+  id                  String             @id @default(uuid())
+  leadId              String
+  userId              String?
+  previousStatus      LeadStatus
+  newStatus           LeadStatus
+  reason              String?
+  createdAt           DateTime           @default(now())
+
+  lead                Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  user                User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+}
+
+model FollowUp {
+  id                  String             @id @default(uuid())
+  tenantId            String
+  leadId              String
+  scheduledAt         DateTime
+  notes               String?
+  status              FollowUpStatus     @default(PENDING)
+  completedAt         DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lead                Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, scheduledAt, status])
+  @@index([leadId])
+}
+
+// --------------------------------------------------------
+// AUDIT, MONITORING & WEBHOOK LOGS
+// --------------------------------------------------------
+model WebhookLog {
+  id                  String             @id @default(uuid())
+  sourceType          String             @default("GOOGLE_SHEET") // GOOGLE_SHEET | WHATSAPP | META
+  metaPageId          String?
+  leadgenId           String?
+  eventPayload        Json
+  signatureValid      Boolean            @default(true)
+  processed           Boolean            @default(false)
+  errorMessage        String?
+  receivedAt          DateTime           @default(now())
+
+  @@index([leadgenId])
+  @@index([sourceType])
+  @@index([receivedAt])
+}
+
+model IntegrationSyncLog {
+  id                  String             @id @default(uuid())
+  portfolioId         String?
+  syncType            String             // ASSET_DISCOVERY, LEAD_SYNC, PERMISSION_CHECK
+  status              String             // SUCCESS, FAILED, WARNING
+  details             Json?
+  durationMs          Int?
+  createdAt           DateTime           @default(now())
+
+  @@index([syncType, status])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id                  String             @id @default(uuid())
+  tenantId            String?
+  userId              String?
+  action              String             // CLIENT_CREATED, SOURCE_CREATED, etc.
+  entityType          String
+  entityId            String?
+  metadata            Json?
+  ipAddress           String?
+  createdAt           DateTime           @default(now())
+
+  tenant              Tenant?            @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, createdAt])
+}

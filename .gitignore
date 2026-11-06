@@ -30,8 +30,17 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+!.env.example
+
+# whatsapp auth & logs
+.wa_auth/
+.wa_auth_old/
+.crm_aceone_wa_auth/
+whatsapp_sessions/
+logs/
+*.log
 
 # vercel
 .vercel
