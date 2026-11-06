@@ -114,7 +114,7 @@ interface ProcessLeadParams {
   signatureValid: boolean;
 }
 
-export async function processLeadgenEvent({
+async function processLeadgenEvent({
   leadgenId,
   metaPageId,
   metaFormId,
