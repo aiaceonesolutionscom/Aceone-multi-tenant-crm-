@@ -1,4 +1,11 @@
-require("dotenv").config();
+try {
+  if (typeof process.loadEnvFile === "function") {
+    process.loadEnvFile();
+  } else {
+    require("dotenv").config();
+  }
+} catch (_) {}
+
 const { createServer } = require("http");
 const { parse } = require("url");
 const path = require("path");
