@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "start:prod": "node server.js",
-    "postinstall": "prisma generate",
     "lint": "eslint"
   },
   "dependencies": {
